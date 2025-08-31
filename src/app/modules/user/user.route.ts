@@ -1,9 +1,34 @@
-import { Router } from "express";
+import {  Router } from "express";
+import { validateRequest } from "../../middlewares/validateRequest";
 import { UserControllers } from "./user.controller";
 
-const router=Router();
+import { createUserZodSchema, updateUserZodSchema } from "./user.validation";
+import { checkAuth } from "../../middlewares/checkAuths";
+import { Role } from "./user.interface";
+// import  { JwtPayload } from "jsonwebtoken";
+// import AppError from "../../errorHelpers/AppError";
+// // import { Role } from "./user.interface";
 
-router.post("/register",UserControllers.createUser)
-router.get("/all-users",UserControllers.getAllUsers)
+// import { envVars } from "../../config/env";
+// import { verifyToken } from "../../utils/jwt";
 
-export const userRoutes=router;
+const router = Router();
+
+
+
+
+
+router.post(
+  "/register",
+  validateRequest(createUserZodSchema),
+  UserControllers.createUser
+);
+
+
+
+router.get("/all-users",checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+ UserControllers.getAllUsers);
+
+ router.patch("/:id", validateRequest(updateUserZodSchema), checkAuth(...Object.values(Role)), UserControllers.updateUser)
+
+export const userRoutes = router;
