@@ -4,6 +4,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import httpStatus from "http-status-codes"
 import { sendResponse } from "../../utils/sendResponse";
 import { AuthServices } from "./auth.service";
+import { setAuthCookie } from "../../utils/setCookie";
 
 const credentialsLogin=catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -11,6 +12,22 @@ const credentialsLogin=catchAsync(
 
     const loginInfo=await AuthServices.credentialsLogin(req.body);
 
+
+    //  res.cookie("accessToken",loginInfo.accessToken,{
+    //   httpOnly:true,
+    //   secure:false,
+    // })
+
+   
+
+
+    // res.cookie("refreshToken",loginInfo.refreshToken,{
+    //   httpOnly:true,
+    //   secure:false,
+    // })
+
+
+     setAuthCookie(res,loginInfo)
 
 
     sendResponse(res,{
@@ -30,7 +47,10 @@ const getNewAccessToken=catchAsync(
    
     const refreshToken=req.cookies.refreshToken;
 
-    const tokenInfo=await AuthServices.getNewAccessToken(refreshToken)
+    const tokenInfo=await AuthServices.getNewAccessToken(refreshToken as string)
+
+   
+  setAuthCookie(res,tokenInfo)
 
 
     sendResponse(res,{
