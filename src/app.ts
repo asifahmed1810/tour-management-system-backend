@@ -1,6 +1,6 @@
 import express, {  Request, Response } from "express";
 
-
+import "./app/config/passport"
 import cookieParser from "cookie-parser";
 import cors from "cors"
 import { router } from "./app/routes";
