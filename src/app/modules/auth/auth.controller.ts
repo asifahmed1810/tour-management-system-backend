@@ -25,6 +25,27 @@ const credentialsLogin=catchAsync(
   }
 );
 
+const getNewAccessToken=catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+   
+    const refreshToken=req.cookies.refreshToken;
+
+    const tokenInfo=await AuthServices.getNewAccessToken(refreshToken)
+
+
+    sendResponse(res,{
+        success:true,
+        statusCode:httpStatus.OK,
+        message:"User Logged in Successfully",
+        data:tokenInfo
+    })
+
+
+
+  }
+);
+
 export const  AuthControllers={
-    credentialsLogin
+    credentialsLogin,
+    getNewAccessToken
 }
