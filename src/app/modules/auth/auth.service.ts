@@ -1,69 +1,58 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import AppError from "../../errorHelpers/AppError";
-import { IsActive, IUser } from "../user/user.interface";
-import { User } from "../user/user.model";
-import httpStatus from "http-status-codes";
 import bcryptjs from "bcryptjs";
-// import jwt from "jsonwebtoken";
-import { generateToken, verifyToken } from "../../utils/jwt";
-import { envVars } from "../../config/env";
-import {
-  createNewAccessTokenWithRefreshToken,
-  createUserTokens,
-} from "../../utils/userTokens";
+import httpStatus from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
+import { envVars } from "../../config/env";
+import AppError from "../../errorHelpers/AppError";
+import { createNewAccessTokenWithRefreshToken } from "../../utils/userTokens";
+import { User } from "../user/user.model";
 
-const credentialsLogin = async (payload: Partial<IUser>) => {
-  const { email, password } = payload;
 
-  const isUserExist = await User.findOne({ email });
+// const credentialsLogin = async (payload: Partial<IUser>) => {
+//     const { email, password } = payload;
 
-  if (!isUserExist) {
-    throw new AppError(httpStatus.BAD_REQUEST, "User does not  exist");
-  }
+//     const isUserExist = await User.findOne({ email })
 
-  const isPasswordMatched = await bcryptjs.compare(
-    password as string,
-    isUserExist.password as string
-  );
+//     if (!isUserExist) {
+//         throw new AppError(httpStatus.BAD_REQUEST, "Email does not exist")
+//     }
 
-  if (!isPasswordMatched) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Incorrect password");
-  }
+//     const isPasswordMatched = await bcryptjs.compare(password as string, isUserExist.password as string)
 
-  // const jwtPayload={
-  //     userId:isUserExist._id,
-  //     email:isUserExist.email,
-  //     role:isUserExist.role,
+//     if (!isPasswordMatched) {
+//         throw new AppError(httpStatus.BAD_REQUEST, "Incorrect Password")
+//     }
+//     // const jwtPayload = {
+//     //     userId: isUserExist._id,
+//     //     email: isUserExist.email,
+//     //     role: isUserExist.role
+//     // }
+//     // const accessToken = generateToken(jwtPayload, envVars.JWT_ACCESS_SECRET, envVars.JWT_ACCESS_EXPIRES)
 
-  // }
+//     // const refreshToken = generateToken(jwtPayload, envVars.JWT_REFRESH_SECRET, envVars.JWT_REFRESH_EXPIRES)
 
-  // const accessToken= generateToken(jwtPayload,envVars.JWT_ACCESS_SECRET, envVars.JWT_ACCESS_EXPIRES)
+//     const userTokens = createUserTokens(isUserExist)
 
-  // const refreshToken=generateToken(jwtPayload,envVars.JWT_REFRESH_SECRET,envVars.JWT_REFRESH_EXPIRES)
+//     // delete isUserExist.password;
 
-  const userTokens = createUserTokens(isUserExist);
+//     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//     const { password: pass, ...rest } = isUserExist.toObject()
 
-  const { password: pass, ...rest } = isUserExist.toObject();
+//     return {
+//         accessToken: userTokens.accessToken,
+//         refreshToken: userTokens.refreshToken,
+//         user: rest
+//     }
 
-  return {
-    accessToken: userTokens.accessToken,
-    refreshToken: userTokens.refreshToken,
-    user: rest,
-  };
-};
-
+// }
 const getNewAccessToken = async (refreshToken: string) => {
-  const newAccessToken = await createNewAccessTokenWithRefreshToken(
-    refreshToken
-  );
+    const newAccessToken = await createNewAccessTokenWithRefreshToken(refreshToken)
 
-  return {
-    accessToken: newAccessToken,
-  };
-};
+    return {
+        accessToken: newAccessToken
+    }
 
+}
 const resetPassword = async (oldPassword: string, newPassword: string, decodedToken: JwtPayload) => {
 
     const user = await User.findById(decodedToken.userId)
@@ -80,8 +69,10 @@ const resetPassword = async (oldPassword: string, newPassword: string, decodedTo
 
 }
 
+//user - login - token (email, role, _id) - booking / payment / booking / payment cancel - token 
+
 export const AuthServices = {
-  credentialsLogin,
-  getNewAccessToken,
-  resetPassword
-};
+    // credentialsLogin,
+    getNewAccessToken,
+    resetPassword
+}
