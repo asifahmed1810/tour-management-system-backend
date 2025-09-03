@@ -9,6 +9,7 @@ import {
     updateTourZodSchema,
 } from "./tour.validation";
 import { checkAuth } from "../../middlewares/checkAuths";
+import { TourController } from "./tour.controller";
 
 const router = express.Router();
 
