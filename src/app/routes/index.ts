@@ -1,26 +1,51 @@
-import { Router } from "express";
-import { userRoutes } from "../modules/user/user.route";
-import { AuthRoutes } from "../modules/auth/auth.route";
-import { DivisionRoutes } from "../modules/division/division.route";
+import { Router } from "express"
+import { AuthRoutes } from "../modules/auth/auth.route"
+import { BookingRoutes } from "../modules/booking/booking.route"
+import { DivisionRoutes } from "../modules/division/division.route"
+import { PaymentRoutes } from "../modules/payment/payment.route"
+import { TourRoutes } from "../modules/tour/tour.route"
+import { userRoutes } from "../modules/user/user.route"
 
 
-export const router=Router();
+export const router = Router()
 
-const moduleRoutes=[
+const moduleRoutes = [
     {
-        path:'/user',
-        route:userRoutes
+        path: "/user",
+        route: userRoutes
     },
     {
-        path:'/auth',
+        path: "/auth",
         route: AuthRoutes
     },
     {
-        path:'/division',
-        route:DivisionRoutes
+        path: "/division",
+        route: DivisionRoutes
+    },
+    {
+        path: "/tour",
+        route: TourRoutes
+    },
+    {
+        path: "/booking",
+        route: BookingRoutes
+    },
+    {
+        path: "/payment",
+        route: PaymentRoutes
     }
+    // {
+    //     path: "/tour",
+    //     route: TourRoutes
+    // },
 ]
 
-moduleRoutes.forEach((route)=>{
-    router.use(route.path,route.route)
+moduleRoutes.forEach((route) => {
+    router.use(route.path, route.route)
 })
+
+// router.use("/user", UserRoutes)
+// router.use("/tour", TourRoutes)
+// router.use("/division", DivisionRoutes)
+// router.use("/booking", BookingRoutes)
+// router.use("/user", UserRoutes)
