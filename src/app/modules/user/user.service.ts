@@ -1,33 +1,36 @@
-import AppError from "../../errorHelpers/AppError";
-import { IAuthprovider, IUser, Role } from "./user.interface";
-import { User } from "./user.model";
+import bcryptjs from "bcryptjs";
 import httpStatus from "http-status-codes";
-import bcryptjs from "bcryptjs"
-import { envVars } from "../../config/env";
 import { JwtPayload } from "jsonwebtoken";
+import { envVars } from "../../config/env";
+import AppError from "../../errorHelpers/AppError";
+import { QueryBuilder } from "../../utils/QueryBuilder";
+import { userSearchableFields } from "./user.constant";
+import { IAuthProvider, IUser, Role } from "./user.interface";
+import { User } from "./user.model";
 
-const createUser=async(payload:Partial<IUser>)=>{
-     const {email,password, ...rest}=payload;
-     const isUserExist=await User.findOne({email})
+const createUser = async (payload: Partial<IUser>) => {
+    const { email, password, ...rest } = payload;
 
-     if(isUserExist){
-        throw new AppError(httpStatus.BAD_REQUEST,"User Already Exist")
-     }
+    const isUserExist = await User.findOne({ email })
 
-     const hashedPassword=await bcryptjs.hash(password as string , Number(envVars.BCRYPT_SALT_ROUND))
+    if (isUserExist) {
+        throw new AppError(httpStatus.BAD_REQUEST, "User Already Exist")
+    }
+
+    const hashedPassword = await bcryptjs.hash(password as string, Number(envVars.BCRYPT_SALT_ROUND))
+
+    const authProvider: IAuthProvider = { provider: "credentials", providerId: email as string }
 
 
-
-     const authProvider:IAuthprovider={provider:"credentials",providerId:email as string}
-
-      const user=await User.create({
-          email,
-          password:hashedPassword,
-          auths:[authProvider] ,
- 
+    const user = await User.create({
+        email,
+        password: hashedPassword,
+        auths: [authProvider],
         ...rest
-      })
+    })
+
     return user
+
 }
 
 const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken: JwtPayload) => {
@@ -73,21 +76,43 @@ const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken:
 }
 
 
-const getAllUsers=async()=>{
-    const users=await User.find({});
+const getAllUsers = async (query: Record<string, string>) => {
 
-    const totalUsers=await User.countDocuments();
+    const queryBuilder = new QueryBuilder(User.find(), query)
+    const usersData = queryBuilder
+        .filter()
+        .search(userSearchableFields)
+        .sort()
+        .fields()
+        .paginate();
+
+    const [data, meta] = await Promise.all([
+        usersData.build(),
+        queryBuilder.getMeta()
+    ])
 
     return {
-        data:users,
-        meta:{
-            total:totalUsers
-        }
-    };
-}
+        data,
+        meta
+    }
+};
+const getSingleUser = async (id: string) => {
+    const user = await User.findById(id).select("-password");
+    return {
+        data: user
+    }
+};
+const getMe = async (userId: string) => {
+    const user = await User.findById(userId).select("-password");
+    return {
+        data: user
+    }
+};
 
-export const userServices={
+export const UserServices = {
     createUser,
     getAllUsers,
-    updateUser
+    getSingleUser,
+    updateUser,
+    getMe
 }
