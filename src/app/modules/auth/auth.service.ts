@@ -6,10 +6,11 @@ import httpStatus from "http-status-codes";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
-import { sendEmail } from "../../utils/sendEmail";
+
 import { createNewAccessTokenWithRefreshToken } from "../../utils/userTokens";
 import { IAuthProvider, IsActive } from "../user/user.interface";
 import { User } from "../user/user.model";
+import { sendEmail } from "../../utils/sendEmail";
 
 
 // const credentialsLogin = async (payload: Partial<IUser>) => {
